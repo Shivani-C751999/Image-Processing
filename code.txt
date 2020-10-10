@@ -1,0 +1,109 @@
+from tkinter import *
+
+import cv2
+from PIL import ImageTk, Image
+from tkinter import filedialog
+from matplotlib import pyplot as plt
+import numpy as np
+
+global my_image
+
+
+def fileopen():
+    window.filename = filedialog.askopenfilename(initialdir="/pictures", title="Select A File",
+                                                 filetypes=(("jpg files", ".jpg"), ("all files", ".*")))
+
+    my_image = ImageTk.PhotoImage(Image.open(window.filename))
+    my_image_label = Label(image=my_image).pack()
+    cv2.imshow('IMAGE', my_image_label)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+
+def open():
+    top = Toplevel()
+    top.title("top Window")
+    top.geometry("500x500")
+    button1 = Button(top, text="Load Image", command=fileopen)
+    button1.pack()
+
+
+window = Tk()
+window.title('IMAGE PROCESSING')
+window.geometry("500x500")
+button = Button(window, text="Single Image", command=open)
+
+
+def openn():
+    img0 = cv2.imread('/Users/comp/Desktop/fvj.jpg')
+
+    # converting to gray scale
+    gray = cv2.cvtColor(img0, cv2.COLOR_BGR2GRAY)
+
+    # remove noise
+    img = cv2.GaussianBlur(gray, (3, 3), 0)
+
+    # convolute with proper kernels
+    laplacian = cv2.Laplacian(img, cv2.CV_64F)
+    sobel = cv2.Sobel(img, cv2.CV_64F, 1, 0, ksize=5)  # x
+    canny = cv2.Canny(img, 100, 200)  # y
+
+    plt.subplot(2, 2, 1), plt.imshow(img, cmap='gray')
+    plt.title('Original'), plt.xticks([]), plt.yticks([])
+    plt.subplot(2, 2, 2), plt.imshow(laplacian, cmap='gray')
+    plt.title('Laplacian'), plt.xticks([]), plt.yticks([])
+    plt.subplot(2, 2, 3), plt.imshow(sobel, cmap='gray')
+    plt.title('Sobel'), plt.xticks([]), plt.yticks([])
+    plt.subplot(2, 2, 4), plt.imshow(canny, cmap='gray')
+    plt.title(' Canny'), plt.xticks([]), plt.yticks([])
+    plt.show()
+
+
+button2 = Button(window, text="edge Detection", command=openn)
+button2.pack()
+button.pack()
+
+
+def graph():
+    img = cv2.imread('/Users/comp/Desktop/fvj.jpg')
+
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    cv2.imshow('Gray Image', gray)
+    plt.hist(gray.ravel(), 256, [0, 256])
+    plt.show()
+
+
+button3 = Button(window, text="Gradient Graph", command=graph)
+button3.pack()
+
+
+def rgbextr():
+    rgb_image = cv2.imread("/Users/comp/Desktop/fvj.jpg")
+
+    rgb_image.shape  # gives (1411L, 1411L, 3L)
+    cv2.imshow('original', rgb_image)
+    green_image = rgb_image[:, :, 1]
+    green_image = rgb_image.copy()  # Make a copy
+    green_image[:, :, 0] = 0
+    green_image[:, :, 2] = 0
+
+    blue_image = rgb_image[:, :, 0]
+    blue_image = rgb_image.copy()  # Make a copy
+    blue_image[:, :, 1] = 0
+    blue_image[:, :, 2] = 0
+
+    red_image = rgb_image[:, :, 2]
+    red_image = rgb_image.copy()  # Make a copy
+    red_image[:, :, 0] = 0
+    red_image[:, :, 1] = 0
+
+    cv2.imshow('green', green_image)
+    cv2.imshow('red', red_image)
+    cv2.imshow('blue', blue_image)
+    cv2.waitKey(0)  # waits until a key is pressed
+    cv2.destroyAllWindows()
+
+
+button4 = Button(window, text="RGB Extraction", command=rgbextr)
+button4.pack()
+window.mainloop()
